@@ -3,8 +3,8 @@ package service
 import (
 	"github.com/gofiber/fiber"
 	"github.com/golpo/db"
-	"log"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 )
 
 // User struct

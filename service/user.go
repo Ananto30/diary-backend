@@ -6,40 +6,38 @@ import (
 	"log"
 )
 
-// Employee struct
-type Employee struct {
-	ID     string `json: "id"`
-	Name   string `json: "name"`
-	Salary string `json: "salary"`
-	Age    string `json: "age"`
+// User struct
+type User struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Age      string `json:"age"`
 }
 
-// Employees struct
-type Employees struct {
-	Employees []Employee `json: "employees"`
+// Users struct
+type Users struct {
+	Users []User `json:"users"`
 }
 
 func GetEmployees(c *fiber.Ctx) {
-	rows, err := db.DB.Query("SELECT id, name, salary, age FROM employees order by id")
+	rows, err := db.DB.Query("SELECT id, name, email, age FROM users order by id")
 	if err != nil {
 		c.Status(500).Send(err)
 		return
 	}
 	defer rows.Close()
-	result := Employees{}
+	result := Users{}
 
 	for rows.Next() {
-		employee := Employee{}
-		err := rows.Scan(&employee.ID, &employee.Name, &employee.Salary, &employee.Age)
-		// Exit if we get an error
+		user := User{}
+		err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Age)
 		if err != nil {
 			c.Status(500).Send(err)
 			return
 		}
-		// Append Employee to Employees
-		result.Employees = append(result.Employees, employee)
+		result.Users = append(result.Users, user)
 	}
-	// Return Employees in JSON format
 	if err := c.JSON(result); err != nil {
 		c.Status(500).Send(err)
 		return
@@ -47,22 +45,17 @@ func GetEmployees(c *fiber.Ctx) {
 }
 
 func CreateEmployee(c *fiber.Ctx) {
-	// New Employee struct
-	u := new(Employee)
-	// Parse body into struct
+	u := new(User)
 	if err := c.BodyParser(u); err != nil {
 		c.Status(400).Send(err)
 		return
 	}
-	// Insert Employee into database
-	res, err := db.DB.Query("INSERT INTO employees (name, salry, age)VALUES ($1, $2, $3)", u.Name, u.Salary, u.Age)
+	res, err := db.DB.Query("INSERT INTO users (name, email, password, age)VALUES ($1, $2, $3, $4)", u.Name, u.Email, u.Password, u.Age)
 	if err != nil {
 		c.Status(500).Send(err)
 		return
 	}
-	// Print result
 	log.Println(res)
-	// Return Employee in JSON format
 	if err := c.JSON(u); err != nil {
 		c.Status(500).Send(err)
 		return
@@ -70,22 +63,17 @@ func CreateEmployee(c *fiber.Ctx) {
 }
 
 func UpdateEmployee(c *fiber.Ctx) {
-	// New Employee struct
-	u := new(Employee)
-	// Parse body into struct
+	u := new(User)
 	if err := c.BodyParser(u); err != nil {
 		c.Status(400).Send(err)
 		return
 	}
-	// Insert Employee into database
-	res, err := db.DB.Query("UPDATE employees SET name=$1,salary=$2,age=$3 WHERE id=$5", u.Name, u.Salary, u.Age, u.ID)
+	res, err := db.DB.Query("UPDATE users SET name=$1,age=$2 WHERE id=$3", u.Name, u.Age, u.ID)
 	if err != nil {
 		c.Status(500).Send(err)
 		return
 	}
-	// Print result
 	log.Println(res)
-	// Return Employee in JSON format
 	if err := c.Status(201).JSON(u); err != nil {
 		c.Status(500).Send(err)
 		return
@@ -93,22 +81,17 @@ func UpdateEmployee(c *fiber.Ctx) {
 }
 
 func DeleteEmployee(c *fiber.Ctx) {
-	// New Employee struct
-	u := new(Employee)
-	// Parse body into struct
+	u := new(User)
 	if err := c.BodyParser(u); err != nil {
 		c.Status(400).Send(err)
 		return
 	}
-	// Insert Employee into database
-	res, err := db.DB.Query("DELETE FROM employees WHERE id = $1", u.ID)
+	res, err := db.DB.Query("DELETE FROM users WHERE id = $1", u.ID)
 	if err != nil {
 		c.Status(500).Send(err)
 		return
 	}
-	// Print result
 	log.Println(res)
-	// Return Employee in JSON format
 	if err := c.JSON("Deleted"); err != nil {
 		c.Status(500).Send(err)
 		return

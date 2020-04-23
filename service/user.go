@@ -20,7 +20,7 @@ type Users struct {
 	Users []User `json:"users"`
 }
 
-func GetEmployees(c *fiber.Ctx) {
+func GetUsers(c *fiber.Ctx) {
 	rows, err := db.DB.Query("SELECT id, name, email, age FROM users order by id")
 	if err != nil {
 		c.Status(500).Send(err)
@@ -44,7 +44,7 @@ func GetEmployees(c *fiber.Ctx) {
 	}
 }
 
-func CreateEmployee(c *fiber.Ctx) {
+func CreateUser(c *fiber.Ctx) {
 	u := new(User)
 	if err := c.BodyParser(u); err != nil {
 		c.Status(400).Send(err)
@@ -62,7 +62,7 @@ func CreateEmployee(c *fiber.Ctx) {
 	}
 }
 
-func UpdateEmployee(c *fiber.Ctx) {
+func UpdateUser(c *fiber.Ctx) {
 	u := new(User)
 	if err := c.BodyParser(u); err != nil {
 		c.Status(400).Send(err)
@@ -80,7 +80,7 @@ func UpdateEmployee(c *fiber.Ctx) {
 	}
 }
 
-func DeleteEmployee(c *fiber.Ctx) {
+func DeleteUser(c *fiber.Ctx) {
 	u := new(User)
 	if err := c.BodyParser(u); err != nil {
 		c.Status(400).Send(err)

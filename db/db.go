@@ -14,7 +14,7 @@ const (
 	port     = 5432 // Default port
 	user     = "postgres"
 	password = "password"
-	dbname   = "fiber_demo"
+	dbname   = "golpo_fiber"
 )
 
 // Connect function

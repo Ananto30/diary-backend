@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber"
 	"github.com/golpo/db"
 	"log"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // User struct
@@ -50,7 +51,11 @@ func CreateUser(c *fiber.Ctx) {
 		c.Status(400).Send(err)
 		return
 	}
-	res, err := db.DB.Query("INSERT INTO users (name, email, password, age)VALUES ($1, $2, $3, $4)", u.Name, u.Email, u.Password, u.Age)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	if err != nil {
+		panic(err)
+	}
+	res, err := db.DB.Query("INSERT INTO users (name, email, password, age)VALUES ($1, $2, $3, $4)", u.Name, u.Email, string(hashedPassword), u.Age)
 	if err != nil {
 		c.Status(500).Send(err)
 		return

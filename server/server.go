@@ -30,6 +30,11 @@ func StartServer() {
 	authGroup := app.Group("/api/auth")
 	authGroup.Post("/login", handler.Login)
 
+	diaryGroup := app.Group("/api/diary")
+	diaryGroup.Use(middleware.Auth())
+	diaryGroup.Get("/", handler.DiaryList)
+	diaryGroup.Post("/", handler.CreateDiary)
+
 
 	app.Listen(3000)
 }

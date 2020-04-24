@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/gofiber/fiber"
-	"github.com/golpo/db"
+	"github.com/golpo/config"
 	"github.com/golpo/dto"
 	"github.com/golpo/util"
 	"golang.org/x/crypto/bcrypt"
@@ -11,7 +11,7 @@ import (
 func Login(c *fiber.Ctx, req *dto.LoginRequest) {
 	pStr := util.HashPassword(c, *req.Password)
 	req.Password = &pStr
-	res := db.DB.Raw("SELECT id, password FROM users WHERE email=$1", req.Email).Row()
+	res := config.DB.Raw("SELECT id, password FROM users WHERE email=$1", req.Email).Row()
 	u := dto.User{}
 	if res.Scan(&u.ID, &u.Password) != nil {
 		util.LogWithTrack(c, res.Scan().Error())

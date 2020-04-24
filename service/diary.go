@@ -3,12 +3,12 @@ package service
 import (
 	"fmt"
 	"github.com/gofiber/fiber"
-	"github.com/golpo/db"
+	"github.com/golpo/config"
 	"github.com/golpo/dto"
 )
 
 func GetDiaries(c *fiber.Ctx) {
-	rows, err := db.DB.Raw("SELECT id, title, author_id, content, created_at FROM diaries order by created_at").Rows()
+	rows, err := config.DB.Raw("SELECT id, title, author_id, content, created_at FROM diaries order by created_at").Rows()
 	if err != nil {
 		c.Status(500).Send(err)
 		return
@@ -33,13 +33,13 @@ func GetDiaries(c *fiber.Ctx) {
 
 func CreateDiary(c *fiber.Ctx, d *dto.Diary) {
 	d.AuthorID = fmt.Sprintf("%v", c.Locals("user"))
-	res := db.DB.Create(&d)
+	res := config.DB.Create(&d)
 	if res.Error != nil {
 		c.Status(500).Send("Creation failed")
 		return
 	}
 
-	if err := c.JSON(dto.SuccessResponse{Success: true}); err != nil {
+	if err := c.JSON(dto.NewSuccessResponse()); err != nil {
 		c.Status(500).Send(err)
 		return
 	}

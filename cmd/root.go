@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/golpo/server"
+	"github.com/golpo/config"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -11,7 +11,7 @@ var rootCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Starts the Golpo app",
 	Run: func(cmd *cobra.Command, args []string) {
-		server.StartServer()
+		config.StartServer()
 	},
 }
 

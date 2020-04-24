@@ -2,6 +2,6 @@ package dto
 
 type ErrorResponse struct {
 	RequestID string `json:"request_id"`
-	ErrorCode int16 `json:"error_code"`
-
+	ErrorCode int16  `json:"error_code"`
+	Message   string `json:"message"`
 }

@@ -27,5 +27,9 @@ func StartServer() {
 	userGroup.Put("/", handler.UpdateUser)
 	userGroup.Delete("/", handler.DeleteUser)
 
+	authGroup := app.Group("/api/auth")
+	authGroup.Post("/login", handler.Login)
+
+
 	app.Listen(3000)
 }

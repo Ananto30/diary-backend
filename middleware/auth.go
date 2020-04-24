@@ -18,7 +18,7 @@ func Auth() func(*fiber.Ctx) {
 	return func(c *fiber.Ctx) {
 		token := c.Get("Authorization")
 		tokenSplit := strings.Fields(string(token))
-		if tokenSplit[0] != "Bearer" {
+		if len(tokenSplit) == 0 || tokenSplit[0] != "Bearer" {
 			c.Status(500).Send("Authorization failed")
 			return
 		}

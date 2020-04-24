@@ -14,9 +14,9 @@ type Claims struct {
 var jwtKey = []byte("my_secret_key")
 
 func GenerateToken(c *fiber.Ctx, userID string) (string, error) {
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(60 * time.Minute)
 	claims := &Claims{
-		UserID: "a1b2c3",
+		UserID: userID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},

@@ -19,6 +19,6 @@ var versionCmd = &cobra.Command{
 		if err := db.Connect(); err != nil {
 			log.Fatal(err)
 		}
-		db.DB.AutoMigrate(&model.User{})
+		db.DB.AutoMigrate(&model.User{}, &model.Diary{})
 	},
 }

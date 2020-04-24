@@ -2,7 +2,7 @@ package model
 
 import "github.com/jinzhu/gorm"
 
-// User struct
+// User model
 type User struct {
 	gorm.Model
 	Name     string

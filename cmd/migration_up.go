@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/golpo/db"
+	"github.com/golpo/config"
 	"github.com/golpo/model"
 	"log"
 
@@ -16,9 +16,9 @@ var versionCmd = &cobra.Command{
 	Use:   "migrate",
 	Short: "Migrates the database",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := db.Connect(); err != nil {
+		if err := config.Connect(); err != nil {
 			log.Fatal(err)
 		}
-		db.DB.AutoMigrate(&model.User{}, &model.Diary{})
+		config.DB.AutoMigrate(&model.User{}, &model.Diary{})
 	},
 }

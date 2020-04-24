@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/logger"
 	"github.com/golpo/db"
 	"github.com/golpo/handler"
+	"github.com/golpo/middleware"
 	"log"
 )
 
@@ -16,9 +17,11 @@ func StartServer() {
 
 	// Create a Fiber app
 	app := fiber.New()
-	app.Use(logger.New(logger.Config{Format: "${time} - ${ip} - ${method} ${path} - ${body} - ${status} [${ua}]\n"}))
+	app.Use(logger.New(logger.Config{Format: "${time} - ${ip} - ${method} ${path} - ${status} - ${body} - ${latency} \t[${ua}]\n"}))
+	app.Use(middleware.Tracker())
 
 	userGroup := app.Group("/api/user")
+	userGroup.Use(middleware.Auth())
 	userGroup.Get("/", handler.UserList)
 	userGroup.Post("/", handler.CreateUser)
 	userGroup.Put("/", handler.UpdateUser)

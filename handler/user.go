@@ -2,67 +2,66 @@ package handler
 
 import (
 	"github.com/gofiber/fiber"
-	"github.com/golpo/config"
 	"github.com/golpo/dto"
-	"github.com/golpo/repository"
 	"github.com/golpo/service"
 	"github.com/golpo/util"
 )
 
+type UserHandler struct {
+	UserService service.UserService
+}
 
-func UserList(c *fiber.Ctx) {
-	userRepo := repository.UserRepoGorm{DB: config.DB}
-	userService := service.UserServiceImpl{UserRepo: userRepo}
-	res, err := userService.GetUsers()
+func (h UserHandler) UserList(c *fiber.Ctx) {
+	res, err := h.UserService.ListUsers()
 	if err != nil {
 		util.LogWithTrack(c, err.Message)
-		c.Status(500).JSON(dto.ServerError(c))
+		mapError(c, err)
 		return
 	}
-
-	if err := c.JSON(res); err != nil {
-		util.LogWithTrack(c, err.Error())
-		c.Status(500).JSON(dto.ServerError(c))
-		return
-	}
+	c.JSON(res)
 }
 
-func CreateUser(c *fiber.Ctx) {
+func (h UserHandler) CreateUser(c *fiber.Ctx) {
 	u := new(dto.User)
 	if err := c.BodyParser(u); err != nil {
 		c.Status(400).Send(err)
 		return
 	}
-	userRepo := repository.UserRepoGorm{DB: config.DB}
-	userService := service.UserServiceImpl{UserRepo: userRepo}
-	res, err := userService.CreateUser(u)
+	err := h.UserService.CreateUser(u)
 	if err != nil {
 		util.LogWithTrack(c, err.Message)
-		c.Status(500).JSON(dto.ServerError(c))
+		mapError(c, err)
 		return
 	}
-
-	if err := c.Status(201).JSON(res); err != nil {
-		util.LogWithTrack(c, err.Error())
-		c.Status(500).JSON(dto.ServerError(c))
-		return
-	}
+	c.Status(201).JSON(dto.StatusResponse{Status: "Created"})
 }
 
-func UpdateUser(c *fiber.Ctx) {
+func (h UserHandler) UpdateUser(c *fiber.Ctx) {
 	u := new(dto.User)
 	if err := c.BodyParser(u); err != nil {
 		c.Status(400).Send(err)
 		return
 	}
-	service.UpdateUser(c, u)
+	err := h.UserService.UpdateUser(u)
+	if err != nil {
+		util.LogWithTrack(c, err.Message)
+		mapError(c, err)
+		return
+	}
+	c.Status(202).JSON(dto.StatusResponse{Status: "Updated"})
 }
 
-func DeleteUser(c *fiber.Ctx) {
+func (h UserHandler) DeleteUser(c *fiber.Ctx) {
 	u := new(dto.User)
 	if err := c.BodyParser(u); err != nil {
 		c.Status(400).Send(err)
 		return
 	}
-	service.DeleteUser(c, u)
+	err := h.UserService.DeleteUser(u.ID)
+	if err != nil {
+		util.LogWithTrack(c, err.Message)
+		mapError(c, err)
+		return
+	}
+	c.Status(202).JSON(dto.StatusResponse{Status: "Deleted"})
 }

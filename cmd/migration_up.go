@@ -16,7 +16,7 @@ var versionCmd = &cobra.Command{
 	Use:   "migrate",
 	Short: "Migrates the database",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := config.Connect(); err != nil {
+		if err := config.ConnectDB(); err != nil {
 			log.Fatal(err)
 		}
 		config.DB.AutoMigrate(&model.User{}, &model.Diary{})

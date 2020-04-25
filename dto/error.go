@@ -1,7 +1,29 @@
 package dto
 
+import (
+	"fmt"
+	"github.com/gofiber/fiber"
+)
+
 type ErrorResponse struct {
 	RequestID string `json:"request_id"`
-	ErrorCode int16  `json:"error_code"`
+	ErrorCode uint32 `json:"error_code"`
 	Message   string `json:"message"`
+}
+
+
+func ServerError(c *fiber.Ctx) *ErrorResponse {
+	return &ErrorResponse{
+		RequestID: fmt.Sprintf("%v", c.Fasthttp.ID()),
+		ErrorCode: 50001,
+		Message:   "Server serviceError",
+	}
+}
+
+func InvalidToken(c *fiber.Ctx) *ErrorResponse {
+	return &ErrorResponse{
+		RequestID: fmt.Sprintf("%v", c.Fasthttp.ID()),
+		ErrorCode: 40301,
+		Message:   "Invalid access token",
+	}
 }

@@ -1,15 +1,14 @@
 package util
 
 import (
-	"github.com/gofiber/fiber"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func HashPassword(c *fiber.Ctx, p string) string {
+func HashPassword(p string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost)
 	if err != nil {
-		LogWithTrack(c, err.Error())
+		return "", err
 	}
 	pStr := string(hashedPassword)
-	return pStr
+	return pStr, nil
 }

@@ -1,9 +1,7 @@
 package model
 
-import "github.com/jinzhu/gorm"
-
 type Diary struct {
-	gorm.Model
+	Base
 	AuthorID   string
 	AuthorName string
 	Title      string

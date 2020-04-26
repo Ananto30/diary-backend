@@ -19,8 +19,8 @@ const (
 	dbname   = "golpo_fiber"
 )
 
-// Connect function
-func Connect() error {
+// ConnectDB function
+func ConnectDB() error {
 	var err error
 	DB, err = gorm.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname))
 	if err != nil {

@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber"
 	"github.com/golpo/dto"
 	"github.com/golpo/service"
-	"github.com/golpo/util"
 )
 
 type UserHandler struct {
@@ -14,8 +13,7 @@ type UserHandler struct {
 func (h UserHandler) UserList(c *fiber.Ctx) {
 	res, err := h.UserService.ListUsers()
 	if err != nil {
-		util.LogWithTrack(c, err.Message)
-		mapError(c, err)
+		errorHandler(c, err)
 		return
 	}
 	c.JSON(res)
@@ -29,8 +27,7 @@ func (h UserHandler) CreateUser(c *fiber.Ctx) {
 	}
 	err := h.UserService.CreateUser(u)
 	if err != nil {
-		util.LogWithTrack(c, err.Message)
-		mapError(c, err)
+		errorHandler(c, err)
 		return
 	}
 	c.Status(201).JSON(dto.StatusResponse{Status: "Created"})
@@ -44,8 +41,7 @@ func (h UserHandler) UpdateUser(c *fiber.Ctx) {
 	}
 	err := h.UserService.UpdateUser(u)
 	if err != nil {
-		util.LogWithTrack(c, err.Message)
-		mapError(c, err)
+		errorHandler(c, err)
 		return
 	}
 	c.Status(202).JSON(dto.StatusResponse{Status: "Updated"})
@@ -59,8 +55,7 @@ func (h UserHandler) DeleteUser(c *fiber.Ctx) {
 	}
 	err := h.UserService.DeleteUser(u.ID)
 	if err != nil {
-		util.LogWithTrack(c, err.Message)
-		mapError(c, err)
+		errorHandler(c, err)
 		return
 	}
 	c.Status(202).JSON(dto.StatusResponse{Status: "Deleted"})

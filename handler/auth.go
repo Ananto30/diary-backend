@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber"
 	"github.com/golpo/dto"
 	"github.com/golpo/service"
-	"github.com/golpo/util"
 )
 
 type AuthHandler struct {
@@ -19,8 +18,7 @@ func (h AuthHandler) Login(c *fiber.Ctx) {
 	}
 	res, err := h.AuthService.Login(req)
 	if err != nil {
-		util.LogWithTrack(c, err.Message)
-		mapError(c, err)
+		errorHandler(c, err)
 		return
 	}
 	c.JSON(res)

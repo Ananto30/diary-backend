@@ -10,28 +10,28 @@ import (
 )
 
 type AuthService interface {
-	Login(req *dto.LoginRequest) (*dto.LoginResponse, *internalError.IError)
+	Login(req *dto.LoginRequest) (*dto.LoginResponse, error)
 }
 
 type AuthServiceImpl struct {
 	UserRepo repository.UserRepo
 }
 
-func (s AuthServiceImpl) Login(req *dto.LoginRequest) (*dto.LoginResponse, *internalError.IError) {
-	u, ierr := s.UserRepo.GetPasswordByEmail(req.Email)
-	if ierr != nil {
-		return nil, ierr
+func (s AuthServiceImpl) Login(req *dto.LoginRequest) (*dto.LoginResponse, error) {
+	u, err := s.UserRepo.GetPasswordByEmail(req.Email)
+	if err != nil {
+		return nil, err
 	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(*u.Password), []byte(*req.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(*u.Password), []byte(*req.Password))
 	if err != nil {
 		log.Println(err)
-		return nil, internalError.Error(internalError.AuthError, "Invalid credentials")
+		return nil, internalError.MakeError(internalError.AuthError, "Invalid credentials")
 	}
 
 	tkn, err := util.GenerateToken(u.ID)
 	if err != nil {
-		return nil, internalError.Error(internalError.JwtError, err.Error())
+		return nil, internalError.MakeError(internalError.JwtError, err.Error())
 	}
 
 	return &dto.LoginResponse{AccessToken: tkn}, nil

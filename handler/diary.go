@@ -5,7 +5,6 @@ import (
 	"github.com/gofiber/fiber"
 	"github.com/golpo/dto"
 	"github.com/golpo/service"
-	"github.com/golpo/util"
 )
 
 type DiaryHandler struct {
@@ -15,8 +14,7 @@ type DiaryHandler struct {
 func (h DiaryHandler) DiaryList(c *fiber.Ctx) {
 	res, err := h.DiaryService.ListDiaries()
 	if err != nil {
-		util.LogWithTrack(c, err.Message)
-		mapError(c, err)
+		errorHandler(c, err)
 		return
 	}
 	c.JSON(res)
@@ -32,8 +30,7 @@ func (h DiaryHandler) CreateDiary(c *fiber.Ctx) {
 	d.AuthorID = fmt.Sprintf("%v", c.Locals("user"))
 	err := h.DiaryService.CreateDiary(d)
 	if err != nil {
-		util.LogWithTrack(c, err.Message)
-		mapError(c, err)
+		errorHandler(c, err)
 		return
 	}
 	c.Status(201).JSON(dto.StatusResponse{Status: "Created"})

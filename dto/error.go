@@ -3,6 +3,7 @@ package dto
 import (
 	"fmt"
 	"github.com/gofiber/fiber"
+	"github.com/golpo/internalError"
 )
 
 type ErrorResponse struct {
@@ -14,23 +15,24 @@ type ErrorResponse struct {
 func ServerError(c *fiber.Ctx) *ErrorResponse {
 	return &ErrorResponse{
 		RequestID: fmt.Sprintf("%v", c.Fasthttp.ID()),
-		ErrorCode: 50001,
+		ErrorCode: internalError.ServerError,
 		Message:   "Server error",
 	}
 }
 
-func InvalidToken(c *fiber.Ctx) *ErrorResponse {
+func InvalidAccessToken(c *fiber.Ctx) *ErrorResponse {
 	return &ErrorResponse{
 		RequestID: fmt.Sprintf("%v", c.Fasthttp.ID()),
-		ErrorCode: 40301,
+		ErrorCode: internalError.InvalidAccessToken,
 		Message:   "Invalid access token",
 	}
 }
 
-func InvalidCredentials(c *fiber.Ctx) *ErrorResponse {
+func ForbiddenError(c *fiber.Ctx) *ErrorResponse {
 	return &ErrorResponse{
 		RequestID: fmt.Sprintf("%v", c.Fasthttp.ID()),
-		ErrorCode: 40302,
-		Message:   "Invalid credentials",
+		ErrorCode: internalError.Forbidden,
+		Message:   "Forbidden",
 	}
 }
+

@@ -3,6 +3,7 @@ package middleware
 import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber"
+	"github.com/golpo/dto"
 	"github.com/golpo/util"
 	"strings"
 )
@@ -19,15 +20,14 @@ func Auth() func(*fiber.Ctx) {
 		token := c.Get("Authorization")
 		tokenSplit := strings.Fields(string(token))
 		if len(tokenSplit) == 0 || tokenSplit[0] != "Bearer" {
-			c.Status(500).Send("Authorization failed")
+			c.Status(403).JSON(dto.ForbiddenError(c))
 			return
 		}
 		claims, done := util.ValidateToken(c, tokenSplit[1])
 		if !done {
-			c.Status(500).Send("Invalid token")
+			c.Status(401).JSON(dto.InvalidAccessToken(c))
 			return
 		}
-		//log.Println(tokenSplit[1])
 		c.Locals("user", claims.UserID)
 		c.Next()
 	}

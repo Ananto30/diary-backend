@@ -18,7 +18,7 @@ type DiaryRepoGorm struct {
 }
 
 func (r DiaryRepoGorm) List() (*dto.Diaries, error) {
-	rows, err := config.DB.Raw("SELECT id, title, author_id, content, created_at FROM diaries order by created_at").Rows()
+	rows, err := config.DB.Raw("SELECT id, title, author_id, content, created_at FROM diaries order by created_at DESC").Rows()
 	if err != nil {
 		return nil, internalError.MakeError(internalError.DatabaseError, err.Error())
 	}

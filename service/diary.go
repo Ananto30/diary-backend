@@ -1,46 +1,27 @@
 package service
 
 import (
-	"fmt"
-	"github.com/gofiber/fiber"
-	"github.com/golpo/config"
 	"github.com/golpo/dto"
+	"github.com/golpo/internalError"
+	"github.com/golpo/repository"
 )
 
-func GetDiaries(c *fiber.Ctx) {
-	rows, err := config.DB.Raw("SELECT id, title, author_id, content, created_at FROM diaries order by created_at").Rows()
-	if err != nil {
-		c.Status(500).Send(err)
-		return
-	}
-	defer rows.Close()
-	result := dto.Diaries{}
-
-	for rows.Next() {
-		diary := dto.Diary{}
-		err := rows.Scan(&diary.ID, &diary.Title, &diary.AuthorID, &diary.Content, &diary.CreatedAt)
-		if err != nil {
-			c.Status(500).Send(err)
-			return
-		}
-		result.Diaries = append(result.Diaries, diary)
-	}
-	if err := c.JSON(result); err != nil {
-		c.Status(500).Send(err)
-		return
-	}
+type DiaryService interface {
+	ListDiaries() (*dto.Diaries, *internalError.IError)
+	CreateDiary(d *dto.Diary) *internalError.IError
 }
 
-func CreateDiary(c *fiber.Ctx, d *dto.Diary) {
-	d.AuthorID = fmt.Sprintf("%v", c.Locals("user"))
-	res := config.DB.Create(&d)
-	if res.Error != nil {
-		c.Status(500).Send("Creation failed")
-		return
-	}
+type DiaryServiceImpl struct {
+	DiaryRepo repository.DiaryRepo
+}
 
-	if err := c.JSON(dto.StatusResponse{Status: "Created"}); err != nil {
-		c.Status(500).Send(err)
-		return
+func (s DiaryServiceImpl) ListDiaries() (*dto.Diaries, *internalError.IError) {
+	return s.DiaryRepo.List()
+}
+
+func (s DiaryServiceImpl) CreateDiary(d *dto.Diary) *internalError.IError {
+	if ierr := s.DiaryRepo.Create(d); ierr != nil {
+		return ierr
 	}
+	return nil
 }

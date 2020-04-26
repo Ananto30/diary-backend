@@ -28,9 +28,12 @@ func InitiateRoutes(app *fiber.App) {
 	authGroup := app.Group("/api/auth")
 	authGroup.Post("/login", authHandler.Login)
 
+	diaryRepo := repository.DiaryRepoGorm{DB: config.DB}
+	diaryService := service.DiaryServiceImpl{DiaryRepo: &diaryRepo}
+	diaryHandler := handler.DiaryHandler{DiaryService: &diaryService}
 
 	diaryGroup := app.Group("/api/diary")
 	diaryGroup.Use(middleware.Auth())
-	diaryGroup.Get("/", handler.DiaryList)
-	diaryGroup.Post("/", handler.CreateDiary)
+	diaryGroup.Get("/", diaryHandler.DiaryList)
+	diaryGroup.Post("/", diaryHandler.CreateDiary)
 }

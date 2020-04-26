@@ -86,8 +86,6 @@ func (r UserRepoGorm) GetByID(id string) (*dto.User, *internalError.IError) {
 
 func (r UserRepoGorm) GetPasswordByEmail(email string) (*dto.User, *internalError.IError) {
 	mUser := new(model.User)
-	//res := config.DB.Raw("SELECT id, password FROM users WHERE email=$1", email).Row()
-	//u := dto.User{}
 	op := r.DB.First(&mUser, "email = ?", email)
 	if err := op.Scan(&mUser).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {

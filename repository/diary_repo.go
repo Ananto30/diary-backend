@@ -9,18 +9,18 @@ import (
 )
 
 type DiaryRepo interface {
-	List() (*dto.Diaries, *internalError.IError)
-	Create(d *dto.Diary) *internalError.IError
+	List() (*dto.Diaries, error)
+	Create(d *dto.Diary) error
 }
 
 type DiaryRepoGorm struct {
 	DB *gorm.DB
 }
 
-func (r DiaryRepoGorm) List() (*dto.Diaries, *internalError.IError) {
+func (r DiaryRepoGorm) List() (*dto.Diaries, error) {
 	rows, err := config.DB.Raw("SELECT id, title, author_id, content, created_at FROM diaries order by created_at").Rows()
 	if err != nil {
-		return nil, internalError.Error(internalError.DatabaseError, err.Error())
+		return nil, internalError.MakeError(internalError.DatabaseError, err.Error())
 	}
 	defer rows.Close()
 	result := dto.Diaries{}
@@ -29,14 +29,14 @@ func (r DiaryRepoGorm) List() (*dto.Diaries, *internalError.IError) {
 		diary := dto.Diary{}
 		err := rows.Scan(&diary.ID, &diary.Title, &diary.AuthorID, &diary.Content, &diary.CreatedAt)
 		if err != nil {
-			return nil, internalError.Error(internalError.ScanError, err.Error())
+			return nil, internalError.MakeError(internalError.ScanError, err.Error())
 		}
 		result.Diaries = append(result.Diaries, diary)
 	}
 	return &result, nil
 }
 
-func (r DiaryRepoGorm) Create(d *dto.Diary) *internalError.IError {
+func (r DiaryRepoGorm) Create(d *dto.Diary) error {
 	mDiary := model.Diary{
 		AuthorID:   d.AuthorID,
 		AuthorName: d.AuthorName,
@@ -45,7 +45,7 @@ func (r DiaryRepoGorm) Create(d *dto.Diary) *internalError.IError {
 	}
 	op := r.DB.Create(&mDiary)
 	if err := op.Error; err != nil {
-		return internalError.Error(internalError.DatabaseError, err.Error())
+		return internalError.MakeError(internalError.DatabaseError, err.Error())
 	}
 	return nil
 }

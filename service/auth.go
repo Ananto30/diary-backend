@@ -1,37 +1,39 @@
 package service
 
 import (
-	"github.com/gofiber/fiber"
-	"github.com/golpo/config"
 	"github.com/golpo/dto"
-	util2 "github.com/golpo/service/util"
-	"github.com/golpo/util"
+	"github.com/golpo/internalError"
+	"github.com/golpo/repository"
+	util "github.com/golpo/service/util"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 )
 
-func Login(c *fiber.Ctx, req *dto.LoginRequest) {
-	pStr, err := util2.HashPassword(*req.Password)
-	if err != nil {
-		//return nil, Error(HashError, err.Error())
-	}
-	req.Password = &pStr
-	res := config.DB.Raw("SELECT id, password FROM users WHERE email=$1", req.Email).Row()
-	u := dto.User{}
-	if res.Scan(&u.ID, &u.Password) != nil {
-		util.LogWithTrack(c, res.Scan().Error())
-		c.Status(403).Send("Invalid credentials")
-		return
-	}
-	err = bcrypt.CompareHashAndPassword([]byte(*u.Password), []byte(*req.Password))
+type AuthService interface {
+	Login(req *dto.LoginRequest) (*dto.LoginResponse, *internalError.IError)
+}
 
-	tkn, err := util.GenerateToken(c, u.ID)
+type AuthServiceImpl struct {
+	UserRepo repository.UserRepo
+}
+
+func (s AuthServiceImpl) Login(req *dto.LoginRequest) (*dto.LoginResponse, *internalError.IError) {
+	u, ierr := s.UserRepo.GetPasswordByEmail(req.Email)
+	if ierr != nil {
+		return nil, ierr
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(*u.Password), []byte(*req.Password))
 	if err != nil {
-		c.Status(503).Send("Service unavailable")
-		return
+		log.Println(err)
+		return nil, internalError.Error(internalError.AuthError, "Invalid credentials")
 	}
-	if err := c.JSON(dto.LoginResponse{AccessToken: tkn}); err != nil {
-		c.Status(500).Send(err)
-		return
+
+	tkn, err := util.GenerateToken(u.ID)
+	if err != nil {
+		return nil, internalError.Error(internalError.JwtError, err.Error())
 	}
+
+	return &dto.LoginResponse{AccessToken: tkn}, nil
 
 }

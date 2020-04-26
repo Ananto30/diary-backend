@@ -2,7 +2,6 @@ package util
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gofiber/fiber"
 	"time"
 )
 
@@ -13,7 +12,7 @@ type Claims struct {
 
 var jwtKey = []byte("my_secret_key")
 
-func GenerateToken(c *fiber.Ctx, userID string) (string, error) {
+func GenerateToken(userID string) (string, error) {
 	expirationTime := time.Now().Add(60 * time.Minute)
 	claims := &Claims{
 		UserID: userID,
@@ -25,24 +24,21 @@ func GenerateToken(c *fiber.Ctx, userID string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		LogWithTrack(c, err.Error())
 		return "", err
 	}
 	return tokenString, nil
 }
 
-func ValidateToken(c *fiber.Ctx, token string) (*Claims, bool) {
+func ValidateToken(token string) (*Claims, bool, error) {
 	claims := &Claims{}
 	tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
 	})
 	if err != nil {
-		LogWithTrack(c, err.Error())
-		return nil, false
+		return nil, false, err
 	}
 	if !tkn.Valid {
-		LogWithTrack(c, "Token not valid")
-		return nil, false
+		return nil, false, nil
 	}
-	return claims, true
+	return claims, true, nil
 }

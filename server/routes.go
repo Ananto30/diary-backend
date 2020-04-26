@@ -22,8 +22,12 @@ func InitiateRoutes(app *fiber.App) {
 	userGroup.Put("/", userHandler.UpdateUser)
 	userGroup.Delete("/", userHandler.DeleteUser)
 
+	authService := service.AuthServiceImpl{UserRepo: &userRepo}
+	authHandler := handler.AuthHandler{AuthService: &authService}
+
 	authGroup := app.Group("/api/auth")
-	authGroup.Post("/login", handler.Login)
+	authGroup.Post("/login", authHandler.Login)
+
 
 	diaryGroup := app.Group("/api/diary")
 	diaryGroup.Use(middleware.Auth())

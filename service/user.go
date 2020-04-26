@@ -4,8 +4,7 @@ import (
 	"github.com/golpo/dto"
 	"github.com/golpo/internalError"
 	"github.com/golpo/repository"
-	util2 "github.com/golpo/service/util"
-	_ "github.com/lib/pq"
+	util "github.com/golpo/service/util"
 )
 
 type UserService interface {
@@ -24,7 +23,7 @@ func (s UserServiceImpl) ListUsers() (*dto.Users, *internalError.IError) {
 }
 
 func (s UserServiceImpl) CreateUser(u *dto.User) *internalError.IError {
-	pStr, err := util2.HashPassword(*u.Password)
+	pStr, err := util.HashPassword(*u.Password)
 	if err != nil {
 		return internalError.Error(internalError.HashError, err.Error())
 	}

@@ -13,6 +13,7 @@ import (
 type UserRepo interface {
 	List() (*dto.Users, *internalError.IError)
 	GetByID(id string) (*dto.User, *internalError.IError)
+	GetPasswordByEmail(email string) (*dto.User, *internalError.IError)
 	Create(u *dto.User) *internalError.IError
 	Update(u *dto.User) *internalError.IError
 	Delete(id string) *internalError.IError
@@ -81,6 +82,23 @@ func (r UserRepoGorm) GetByID(id string) (*dto.User, *internalError.IError) {
 		return nil, internalError.Error(internalError.DatabaseError, err.Error())
 	}
 	return formatUser(mUser), nil
+}
+
+func (r UserRepoGorm) GetPasswordByEmail(email string) (*dto.User, *internalError.IError) {
+	mUser := new(model.User)
+	//res := config.DB.Raw("SELECT id, password FROM users WHERE email=$1", email).Row()
+	//u := dto.User{}
+	op := r.DB.First(&mUser, "email = ?", email)
+	if err := op.Scan(&mUser).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, internalError.Error(internalError.AuthError, "Invalid credentials")
+		}
+		return nil, internalError.Error(internalError.DatabaseError, err.Error())
+	}
+	return &dto.User{
+		ID:       mUser.ID.String(),
+		Password: &mUser.Password,
+	}, nil
 }
 
 func (r UserRepoGorm) Delete(id string) *internalError.IError {

@@ -19,4 +19,6 @@ const (
 	HashError      = 42201
 	UniqueKeyError = 40001
 	NotFoundError  = 40401
+	AuthError      = 40301
+	JwtError       = 50002
 )

@@ -2,13 +2,15 @@ package server
 
 import (
 	"github.com/gofiber/fiber"
+	"github.com/golpo/config"
 	"github.com/golpo/handler"
 	"github.com/golpo/middleware"
+	"github.com/golpo/repository"
 )
 
 func InitiateRoutes(app *fiber.App) {
 
-	//userRepo := repository.UserRepoGorm{DB: config.DB}
+	userRepo := repository.UserRepoGorm{DB: config.DB}
 	//userService := service.UserServiceImpl{UserRepo: &userRepo}
 	//userHandler := handler.UserHandler{UserService: &userService}
 	//
@@ -19,11 +21,11 @@ func InitiateRoutes(app *fiber.App) {
 	//userGroup.Put("/", userHandler.UpdateUser)
 	//userGroup.Delete("/", userHandler.DeleteUser)
 	//
-	//authService := service.AuthServiceImpl{UserRepo: &userRepo}
-	//authHandler := handler.AuthHandler{AuthService: &authService}
-	//
-	//authGroup := app.Group("/api/auth")
-	//authGroup.Post("/login", authHandler.Login)
+
+	authHandler := handler.AuthHandler{UserRepo: &userRepo}
+
+	authGroup := app.Group("/api/auth")
+	authGroup.Post("/login", authHandler.Login)
 	//
 	//diaryRepo := repository.DiaryRepoGorm{DB: config.DB}
 	//diaryService := service.DiaryServiceImpl{DiaryRepo: &diaryRepo}
@@ -40,9 +42,6 @@ func InitiateRoutes(app *fiber.App) {
 	userGroup.Post("/", handler.CreateUser)
 	userGroup.Put("/", handler.UpdateUser)
 	userGroup.Delete("/", handler.DeleteUser)
-
-	authGroup := app.Group("/api/auth")
-	authGroup.Post("/login", handler.Login)
 
 	diaryGroup := app.Group("/api/diary")
 	diaryGroup.Use(middleware.Auth())

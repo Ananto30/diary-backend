@@ -1,12 +1,18 @@
 package internalError
 
+import "fmt"
+
 // IError represents service error
 type IError struct {
 	ErrorCode uint32
 	Message   string
 }
 
-func Error(code uint32, msg string) *IError {
+func (i IError) Error() string {
+	return fmt.Sprintf("status %d: err %v", i.ErrorCode, i.Message)
+}
+
+func MakeError(code uint32, msg string) *IError {
 	return &IError{
 		ErrorCode: code,
 		Message:   msg,

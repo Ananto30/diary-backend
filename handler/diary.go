@@ -44,7 +44,7 @@ func CreateDiary(c *fiber.Ctx) {
 		return
 	}
 
-	if err := c.JSON(dto.NewSuccessResponse()); err != nil {
+	if err := c.JSON(dto.StatusResponse{Status: "Created"}); err != nil {
 		c.Status(500).Send(err)
 		return
 	}

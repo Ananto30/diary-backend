@@ -2,35 +2,40 @@ package handler
 
 import (
 	"github.com/gofiber/fiber"
-	"github.com/golpo/config"
 	"github.com/golpo/dto"
+	"github.com/golpo/internalError"
+	"github.com/golpo/repository"
 	"github.com/golpo/util"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Login(c *fiber.Ctx) {
+type AuthHandler struct {
+	UserRepo repository.UserRepo
+}
+
+func (h AuthHandler) Login(c *fiber.Ctx) {
 	req := new(dto.LoginRequest)
 	if err := c.BodyParser(req); err != nil {
 		c.Status(400).Send(err)
 		return
 	}
-	pStr := util.HashPassword(c, *req.Password)
-	req.Password = &pStr
-	res := config.DB.Raw("SELECT id, password FROM users WHERE email=$1", req.Email).Row()
-	u := dto.User{}
-	if res.Scan(&u.ID, &u.Password) != nil {
-		util.LogWithTrack(c, res.Scan().Error())
-		c.Status(403).Send("Invalid credentials")
+
+	u, ierr := h.UserRepo.GetPasswordByEmail(req.Email)
+	if ierr != nil {
+		errorHandler(c, ierr)
 		return
 	}
+
 	err := bcrypt.CompareHashAndPassword([]byte(*u.Password), []byte(*req.Password))
+	if err != nil {
+		errorHandler(c, internalError.MakeError(internalError.AuthError, "Invalid credentials"))
+		return
+	}
 
 	tkn, err := util.GenerateToken(c, u.ID)
 	if err != nil {
-		c.Status(503).Send("Service unavailable")
-	}
-	if err := c.JSON(dto.LoginResponse{AccessToken: tkn}); err != nil {
-		c.Status(500).Send(err)
+		errorHandler(c, internalError.MakeError(internalError.JwtError, "Invalid credentials"))
 		return
 	}
+	c.JSON(dto.LoginResponse{AccessToken: tkn})
 }

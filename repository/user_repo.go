@@ -11,20 +11,20 @@ import (
 )
 
 type UserRepo interface {
-	List() (*dto.Users, *internalError.IError)
-	GetByID(id string) (*dto.User, *internalError.IError)
+	List() (*dto.Users, error)
+	GetByID(id string) (*dto.User, error)
 	GetPasswordByEmail(email string) (*dto.User, error)
-	Create(u *dto.User) *internalError.IError
-	Update(u *dto.User) *internalError.IError
-	Delete(id string) *internalError.IError
+	Create(u *dto.User) error
+	Update(u *dto.User) error
+	Delete(id string) error
 }
 
 type UserRepoGorm struct {
 	DB *gorm.DB
 }
 
-func (r UserRepoGorm) List() (*dto.Users, *internalError.IError) {
-	rows, err := config.DB.Raw("SELECT id, name, email, age FROM users WHERE deleted_at IS NULL order by id").Rows()
+func (r UserRepoGorm) List() (*dto.Users, error) {
+	rows, err := config.DB.Raw("SELECT id, name, email, age FROM users WHERE deleted_at IS NULL order by created_at DESC").Rows()
 	if err != nil {
 		return nil, internalError.MakeError(internalError.DatabaseError, err.Error())
 	}
@@ -42,7 +42,7 @@ func (r UserRepoGorm) List() (*dto.Users, *internalError.IError) {
 	return &result, nil
 }
 
-func (r UserRepoGorm) Create(u *dto.User) *internalError.IError {
+func (r UserRepoGorm) Create(u *dto.User) error {
 	mUser := convertUser(u)
 	op := r.DB.Create(&mUser)
 	if err := op.Error; err != nil {
@@ -60,7 +60,7 @@ func (r UserRepoGorm) Create(u *dto.User) *internalError.IError {
 	return nil
 }
 
-func (r UserRepoGorm) Update(u *dto.User) *internalError.IError {
+func (r UserRepoGorm) Update(u *dto.User) error {
 	_, iError := r.GetByID(u.ID)
 	if iError != nil {
 		return iError
@@ -72,7 +72,7 @@ func (r UserRepoGorm) Update(u *dto.User) *internalError.IError {
 	return nil
 }
 
-func (r UserRepoGorm) GetByID(id string) (*dto.User, *internalError.IError) {
+func (r UserRepoGorm) GetByID(id string) (*dto.User, error) {
 	mUser := new(model.User)
 	op := r.DB.First(&mUser, "id = ?", id)
 	if err := op.Scan(&mUser).Error; err != nil {
@@ -99,7 +99,7 @@ func (r UserRepoGorm) GetPasswordByEmail(email string) (*dto.User, error) {
 	}, nil
 }
 
-func (r UserRepoGorm) Delete(id string) *internalError.IError {
+func (r UserRepoGorm) Delete(id string) error {
 	_, iError := r.GetByID(id)
 	if iError != nil {
 		return iError

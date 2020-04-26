@@ -20,11 +20,15 @@ func MakeError(code uint32, msg string) *IError {
 }
 
 const (
-	DatabaseError  = 50301
-	ScanError      = 50302
-	HashError      = 42201
-	UniqueKeyError = 40001
-	NotFoundError  = 40401
-	AuthError      = 40301
-	JwtError       = 50002
+	ServerError   = 50001
+	JwtError      = 50002
+	DatabaseError = 50301
+	ScanError     = 50302
+
+	HashError          = 42201
+	UniqueKeyError     = 40001
+	NotFoundError      = 40401
+	Forbidden          = 40301
+	InvalidAccessToken = 40302
+	AuthError          = 40303
 )

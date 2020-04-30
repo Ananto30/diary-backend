@@ -1,4 +1,4 @@
-# Golpo
+# This is the backend of Diary
 **WORK IN PROGRESS**
 
 Social network backend made with fiber (WIP)

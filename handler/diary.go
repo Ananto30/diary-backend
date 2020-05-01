@@ -34,3 +34,21 @@ func (h DiaryHandler) CreateDiary(c *fiber.Ctx) {
 
 	c.JSON(dto.StatusResponse{Status: "Created"})
 }
+
+func (h DiaryHandler) GetDiaryById(c *fiber.Ctx) {
+	result, err := h.DiaryRepo.GetByID(c.Params("id"))
+	if err != nil {
+		errorHandler(c, err)
+		return
+	}
+	c.JSON(result)
+}
+
+func (h DiaryHandler) GetDiaryByUserId(c *fiber.Ctx) {
+	result, err := h.DiaryRepo.GetByUserID(fmt.Sprintf(c.Params("id")))
+	if err != nil {
+		errorHandler(c, err)
+		return
+	}
+	c.JSON(result)
+}

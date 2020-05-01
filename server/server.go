@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/gofiber/cors"
 	"github.com/gofiber/fiber"
 	"github.com/gofiber/logger"
 	"github.com/gofiber/recover"
@@ -20,6 +21,9 @@ func StartServer() error {
 			c.SendStatus(500)
 		},
 	}
+
+	app.Use(cors.New())
+
 	app.Use(recover.New(rCfg))
 
 	app.Use(logger.New(logger.Config{Format: "${time} - ${ip} - ${method} ${path} - ${status} - ${body} - ${latency} \t[${ua}]\n"}))
@@ -28,7 +32,7 @@ func StartServer() error {
 
 	InitiateRoutes(app)
 
-	if err := app.Listen(3000); err != nil {
+	if err := app.Listen(8000); err != nil {
 		return err
 	}
 	return nil

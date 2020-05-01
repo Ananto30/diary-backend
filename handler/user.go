@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber"
 	"github.com/golpo/dto"
 	"github.com/golpo/repository"
@@ -13,6 +14,25 @@ type UserHandler struct {
 
 func (h UserHandler) UserList(c *fiber.Ctx) {
 	result, err := h.UserRepo.List()
+	if err != nil {
+		errorHandler(c, err)
+		return
+	}
+	c.JSON(result)
+}
+
+func (h UserHandler) GetUserById(c *fiber.Ctx) {
+	result, err := h.UserRepo.GetByID(c.Params("id"))
+	if err != nil {
+		errorHandler(c, err)
+		return
+	}
+	c.JSON(result)
+}
+
+func (h UserHandler) GetUserByAuthToken(c *fiber.Ctx) {
+	authU := fmt.Sprintf("%v", c.Locals("user"))
+	result, err := h.UserRepo.GetByID(authU)
 	if err != nil {
 		errorHandler(c, err)
 		return
